@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import FloralCorner from './FloralCorner';
 import { useCountdown } from '../hooks/useCountdown';
-import GaneshaIcon from './GaneshaIcon';
 
 const WEDDING_DATE = new Date('2026-08-26T09:00:00+05:30');
 
@@ -25,98 +23,20 @@ export default function Hero() {
   };
 
   return (
-    <section className="hero" id="hero">
-      {/* Floral corners */}
-      <FloralCorner className="top-left" />
-      <FloralCorner className="top-right" />
+    <section className="hero hero-with-bg" id="hero">
+      {/* Background Image */}
+      <div className="hero-bg-image">
+        <img src="/images/invitation_hero.jpg" alt="Wedding Invitation - Ravi Teja & Sravya" />
+      </div>
+      <div className="hero-bg-overlay" />
 
       <div className="hero-content">
         {loaded && (
           <>
-            {/* Ganesha icon */}
-            <motion.div
-              className="hero-ganesha"
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, ease: 'easeOut' }}
-            >
-              <GaneshaIcon size={52} />
-            </motion.div>
-
-            {/* Eyebrow text */}
-            <motion.p
-              className="hero-eyebrow"
-              custom={1}
-              initial="hidden"
-              animate="visible"
-              variants={fadeUp}
-            >
-              WITH THE DIVINE BLESSINGS OF
-            </motion.p>
-
-            {/* Script line */}
-            <motion.p
-              className="hero-divine-text"
-              custom={2}
-              initial="hidden"
-              animate="visible"
-              variants={fadeUp}
-            >
-              God & Elderly Ones
-            </motion.p>
-
-            {/* Gold divider */}
-            <motion.div
-              className="gold-divider"
-              custom={3}
-              initial="hidden"
-              animate="visible"
-              variants={fadeUp}
-            >
-              <span className="line" />
-              <span className="heart">♥</span>
-              <span className="line" />
-            </motion.div>
-
-            {/* Groom name */}
-            <motion.h1
-              className="hero-groom-name"
-              custom={4}
-              initial="hidden"
-              animate="visible"
-              variants={fadeUp}
-            >
-              I, Ravi Teja,
-            </motion.h1>
-
-            {/* Getting married */}
-            <motion.p
-              className="hero-getting-married"
-              custom={5}
-              initial="hidden"
-              animate="visible"
-              variants={fadeUp}
-            >
-              AM GETTING MARRIED TO
-            </motion.p>
-
-            {/* Bride name */}
-            <motion.div
-              custom={6}
-              initial="hidden"
-              animate="visible"
-              variants={fadeUp}
-            >
-              <h2 className="hero-bride-name">
-                Sravya
-                <span className="hero-bride-heart">♡</span>
-              </h2>
-            </motion.div>
-
             {/* Countdown */}
             <motion.div
               className="countdown-container"
-              custom={7}
+              custom={1}
               initial="hidden"
               animate="visible"
               variants={fadeUp}

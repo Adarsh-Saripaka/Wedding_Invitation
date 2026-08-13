@@ -1,51 +1,99 @@
-import { useState, useEffect } from 'react';
-import { Volume2, VolumeX } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
 import { ambientMusic } from '../utils/audio';
-import GaneshaIcon from './GaneshaIcon';
+import { useCountdown } from '../hooks/useCountdown';
 
 interface EnvelopeProps {
+  isOpen: boolean;
   onOpen: () => void;
   isMuted: boolean;
   onToggleMute: () => void;
 }
 
-export default function Envelope({ onOpen, isMuted, onToggleMute }: EnvelopeProps) {
+interface Sparkle {
+  id: number;
+  top: number;
+  left: number;
+  delay: number;
+  size: number;
+}
+
+interface Petal {
+  id: number;
+  left: number;
+  delay: number;
+  duration: number;
+  size: number;
+  rotation: number;
+}
+
+const WEDDING_DATE = new Date('2026-08-26T09:00:00+05:30');
+
+export default function Envelope({ isOpen, onOpen, isMuted }: EnvelopeProps) {
   const [isOpening, setIsOpening] = useState(false);
-  const [sparkles, setSparkles] = useState<{ id: number; top: number; left: number; delay: number; size: number }[]>([]);
+  const [isCracked, setIsCracked] = useState(false);
+  const [sparkles, setSparkles] = useState<Sparkle[]>([]);
+  const [petals, setPetals] = useState<Petal[]>([]);
+  const [showHint, setShowHint] = useState(false);
+  
+  const { days, hours, minutes, seconds } = useCountdown(WEDDING_DATE);
 
   useEffect(() => {
     // Generate sparkle coordinates for ambient golden dust
-    const items = Array.from({ length: 25 }).map((_, idx) => ({
+    const items = Array.from({ length: 35 }).map((_, idx) => ({
       id: idx,
       top: Math.random() * 90 + 5,
       left: Math.random() * 90 + 5,
-      delay: Math.random() * 4,
-      size: Math.random() * 12 + 6,
+      delay: Math.random() * 5,
+      size: Math.random() * 14 + 5,
     }));
     setSparkles(items);
+
+    // Generate floating rose petals
+    // Reduced count for mobile performance will be handled via CSS media queries hiding nth-child
+    const petalItems = Array.from({ length: 18 }).map((_, idx) => ({
+      id: idx,
+      left: Math.random() * 100,
+      delay: Math.random() * 8,
+      duration: 8 + Math.random() * 6,
+      size: 10 + Math.random() * 14,
+      rotation: Math.random() * 360,
+    }));
+    setPetals(petalItems);
+
+    // Show hint text after a moment
+    const hintTimer = setTimeout(() => setShowHint(true), 1500);
+    return () => clearTimeout(hintTimer);
   }, []);
 
-  const handleOpen = () => {
-    if (isOpening) return;
-    setIsOpening(true);
+  const handleOpen = useCallback(() => {
+    if (isOpening || isCracked || isOpen) return;
+    setIsCracked(true);
 
     // Initialize audio loops
     ambientMusic.start();
     ambientMusic.setMute(isMuted);
 
-    // Opening animation sequence time
+    // Delay the actual flap opening to let the seal crack animation play
     setTimeout(() => {
-      onOpen();
-    }, 2200);
-  };
+      setIsOpening(true);
+      
+      // Trigger open state in parent component after flap opens and card pops out
+      setTimeout(() => {
+        onOpen();
+      }, 1800);
+    }, 400); // 400ms for crack animation
+  }, [isOpening, isCracked, isOpen, isMuted, onOpen]);
+
+  const activeOpenState = isOpen || isOpening;
 
   return (
-    <div className={`envelope-screen ${isOpening ? 'fade-out' : ''}`}>
+    <div className={`envelope-screen ${isOpen ? 'opened-flow-state' : ''}`}>
       {/* Background Radial Glow */}
       <div className="envelope-bg-glow" />
+      <div className="envelope-bg-glow-2" />
 
       {/* Floating Sparkles (Golden Dust) */}
-      {sparkles.map((sparkle) => (
+      {!isOpen && sparkles.map((sparkle) => (
         <span
           key={sparkle.id}
           className="envelope-sparkle"
@@ -61,27 +109,62 @@ export default function Envelope({ onOpen, isMuted, onToggleMute }: EnvelopeProp
         </span>
       ))}
 
-      {/* Persistent Audio Controls */}
-      <button className="envelope-audio-toggle" onClick={onToggleMute} aria-label="Toggle Audio">
-        {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
-      </button>
+      {/* Floating Rose Petals */}
+      {petals.map((petal) => (
+        <span
+          key={`petal-${petal.id}`}
+          className="envelope-petal"
+          style={{
+            left: `${petal.left}%`,
+            animationDelay: `${petal.delay}s`,
+            animationDuration: `${petal.duration}s`,
+            fontSize: `${petal.size}px`,
+            '--petal-rotation': `${petal.rotation}deg`,
+          } as React.CSSProperties}
+        >
+          🌸
+        </span>
+      ))}
+
+      {/* Top decorative text */}
+      <div className={`envelope-top-text ${showHint && !activeOpenState ? 'visible' : ''}`}>
+        <span className="envelope-ornament">✧ ❦ ✧</span>
+        <p className="envelope-tagline">A celebration of love awaits</p>
+      </div>
 
       {/* Outer Envelope Wrapper */}
-      <div className={`envelope-container ${isOpening ? 'open' : ''}`}>
-        {/* Envelope Back Plate (Deep Velvet Burgundy pocket back) */}
-        <div className="envelope-back" />
+      <div className={`envelope-container ${activeOpenState ? 'open' : ''}`}>
+        {/* Envelope shimmer overlay */}
+        <div className="envelope-shimmer" />
 
-        {/* Envelope Inside Card (Warm ivory invitation slide-up) */}
+        {/* Envelope Back Plate (Deep Velvet Burgundy pocket back) */}
+        <div className="envelope-back">
+          {/* Decorative corner flourishes */}
+          <span className="envelope-corner-flourish top-left">❧</span>
+          <span className="envelope-corner-flourish top-right">❧</span>
+          <span className="envelope-corner-flourish bottom-left">❧</span>
+          <span className="envelope-corner-flourish bottom-right">❧</span>
+        </div>
+
+        {/* Envelope Inside Card (Warm invitation card) */}
         <div className="envelope-card-preview">
-          <div className="envelope-card-inner">
-            <span className="envelope-card-ganesha">
-              <GaneshaIcon size={36} />
-            </span>
-            <p className="envelope-card-eyebrow">WITH THE DIVINE BLESSINGS OF ELDERS</p>
-            <h4 className="envelope-card-names">Ravi Teja & Sravya</h4>
-            <span className="envelope-card-divider" />
-            <p className="envelope-card-date">26th AUGUST 2026</p>
-            <p className="envelope-card-location">VIJAYANAGARAM</p>
+          <div className="envelope-card-inner-bg">
+            <img src="/images/invitation_hero.jpg" alt="Ravi Teja & Sravya Wedding Invitation" />
+            <div className="envelope-card-gradient-overlay" />
+          </div>
+
+          <div className="envelope-card-countdown-overlay">
+            {[
+              { value: days, label: 'Days' },
+              { value: hours, label: 'Hours' },
+              { value: minutes, label: 'Minutes' },
+              { value: seconds, label: 'Seconds' },
+            ].map((item) => (
+              <div className="countdown-item-envelope" key={item.label}>
+                <span className="countdown-number-envelope">{item.value}</span>
+                <span className="countdown-label-envelope">{item.label}</span>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -89,21 +172,42 @@ export default function Envelope({ onOpen, isMuted, onToggleMute }: EnvelopeProp
         <div className="envelope-flap">
           <svg className="flap-svg" viewBox="0 0 100 50" preserveAspectRatio="none">
             {/* Dark velvet top fold */}
-            <polygon points="0,0 50,48 100,0" fill="#5A131C" />
+            <defs>
+              <linearGradient id="flapGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#6A1A24" />
+                <stop offset="50%" stopColor="#5A131C" />
+                <stop offset="100%" stopColor="#4A0E16" />
+              </linearGradient>
+            </defs>
+            <polygon points="0,0 50,48 100,0" fill="url(#flapGrad)" />
             {/* Subtle Gold Foil Flap Border */}
             <polyline points="2,0 50,46 98,0" stroke="#C9A24B" strokeWidth="0.8" fill="none" strokeOpacity="0.85" />
+            {/* Inner decorative line */}
+            <polyline points="8,0 50,38 92,0" stroke="#D9C48E" strokeWidth="0.3" fill="none" strokeOpacity="0.4" />
           </svg>
+          {/* Wax seal on flap */}
+          <div className="flap-seal-decoration">❦</div>
         </div>
 
         {/* Envelope Front Flaps (Left, Right and Bottom pocket overlay) */}
         <div className="envelope-front">
           <svg className="front-svg" viewBox="0 0 100 60" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="leftFold" x1="0%" y1="0%" x2="100%" y2="50%">
+                <stop offset="0%" stopColor="#4A0E16" />
+                <stop offset="100%" stopColor="#420B11" />
+              </linearGradient>
+              <linearGradient id="rightFold" x1="100%" y1="0%" x2="0%" y2="50%">
+                <stop offset="0%" stopColor="#4A0E16" />
+                <stop offset="100%" stopColor="#420B11" />
+              </linearGradient>
+            </defs>
             {/* Left fold */}
-            <polygon points="0,0 50,30 0,60" fill="#420B11" opacity="0.95" />
+            <polygon points="0,0 50,30 0,60" fill="url(#leftFold)" opacity="0.95" />
             <polyline points="0,1 48,30 0,59" stroke="#C9A24B" strokeWidth="0.5" fill="none" strokeOpacity="0.4" />
 
             {/* Right fold */}
-            <polygon points="100,0 50,30 100,60" fill="#420B11" opacity="0.95" />
+            <polygon points="100,0 50,30 100,60" fill="url(#rightFold)" opacity="0.95" />
             <polyline points="100,1 52,30 100,59" stroke="#C9A24B" strokeWidth="0.5" fill="none" strokeOpacity="0.4" />
 
             {/* Bottom fold */}
@@ -113,11 +217,19 @@ export default function Envelope({ onOpen, isMuted, onToggleMute }: EnvelopeProp
         </div>
 
         {/* Wax Seal Toggle / Action Button */}
-        <div className="wax-seal-wrapper">
+        <div className={`wax-seal-wrapper ${isCracked ? 'cracked' : ''} ${isOpening ? 'fade-out' : ''}`}>
+          <div className="wax-seal-pulse" />
           <button className="wax-seal" onClick={handleOpen}>
             <div className="wax-inner-seal">
               <span className="wax-symbol">❦</span>
             </div>
+            {isCracked && (
+              <>
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className={`wax-crack-particle p-${i}`} />
+                ))}
+              </>
+            )}
           </button>
           <p className="wax-action-label">TAP TO UNSEAL</p>
           <p className="seal-invite-text">YOU ARE INVITED ♡</p>
@@ -125,6 +237,12 @@ export default function Envelope({ onOpen, isMuted, onToggleMute }: EnvelopeProp
 
         {/* Transition Light Burst */}
         {isOpening && <div className="gold-burst-effect" />}
+        {isOpening && <div className="gold-rays-effect" />}
+      </div>
+
+      {/* Bottom decorative text */}
+      <div className={`envelope-bottom-text ${showHint && !activeOpenState ? 'visible' : ''}`}>
+        <p className="envelope-date-hint">26 · 08 · 2026</p>
       </div>
     </div>
   );
