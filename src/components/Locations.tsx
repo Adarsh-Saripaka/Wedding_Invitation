@@ -16,9 +16,9 @@ const venues = [
     eventName: 'Haldi',
     venueName: 'Sunrise Iconic Resort',
     address: 'Bheemunipatnam, Visakhapatnam',
-    directionsLink: 'https://maps.google.com/?q=Sunrise+Iconic+Resort',
+    directionsLink: 'https://maps.app.goo.gl/yS5V5Loft7ehBAiMA?g_st=iw',
     mapEmbedUrl:
-      'https://maps.google.com/maps?q=Sunrise%20Iconic%20Resort%20Bheemunipatnam&t=&z=14&ie=UTF8&iwloc=&output=embed',
+      'https://maps.app.goo.gl/yS5V5Loft7ehBAiMA?g_st=iw',
   },
   {
     id: 'venue-marriage',

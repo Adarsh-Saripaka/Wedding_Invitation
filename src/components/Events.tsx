@@ -29,7 +29,7 @@ export default function Events() {
       time: '10:00 AM onwards',
       venue: 'Sunrise Iconic Resort',
       venueAddress: 'Bheemunipatnam, Visakhapatnam',
-      venueLink: 'https://maps.google.com/?q=Sunrise+Iconic+Resort',
+      venueLink: 'https://maps.app.goo.gl/yS5V5Loft7ehBAiMA?g_st=iw',
       image: '/images/haldi.png',
       calendarEvent: {
         text: 'Ravi Teja & Sravya - Haldi Ceremony',
