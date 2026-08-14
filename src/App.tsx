@@ -6,6 +6,7 @@ import PersonalNote from './components/PersonalNote';
 import ConfirmPresence from './components/ConfirmPresence';
 import Events from './components/Events';
 import ClosingNote from './components/ClosingNote';
+import Locations from './components/Locations';
 import Envelope from './components/Envelope';
 import Gallery from './components/Gallery';
 import NewRevealScreen from './components/NewRevealScreen';
@@ -109,6 +110,14 @@ function App() {
               </div>
 
               <ClosingNote />
+
+              <div className="botanical-divider">
+                <span className="stem" />
+                <span className="leaf">✿</span>
+                <span className="stem" />
+              </div>
+
+              <Locations />
 
               <footer className="footer">
                 <h4 className="footer-names">Ravi Teja & Sravya</h4>

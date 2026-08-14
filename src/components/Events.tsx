@@ -12,7 +12,7 @@ export default function Events() {
       venue: 'Sri Rama Residency',
       venueAddress: 'New Karasa, Marripalem, Visakhapatnam',
       venueLink: 'https://maps.app.goo.gl/iMM29SkwCkH4vao66?g_st=ac',
-      mapEmbedUrl: 'https://maps.google.com/maps?q=Sri%20Rama%20Residency%20New%20Karasa%20Visakhapatnam&t=&z=14&ie=UTF8&iwloc=&output=embed',
+      image: '/images/groom-making.png',
       calendarEvent: {
         text: 'Ravi Teja & Sravya - Groom Making Ceremony',
         dates: '20260824T070000/20260824T093000',
@@ -30,7 +30,7 @@ export default function Events() {
       venue: 'Sunrise Iconic Resort',
       venueAddress: 'Bheemunipatnam, Visakhapatnam',
       venueLink: 'https://maps.google.com/?q=Sunrise+Iconic+Resort',
-      mapEmbedUrl: 'https://maps.google.com/maps?q=Sunrise%20Iconic%20Resort%20Bheemunipatnam&t=&z=14&ie=UTF8&iwloc=&output=embed',
+      image: '/images/haldi.png',
       calendarEvent: {
         text: 'Ravi Teja & Sravya - Haldi Ceremony',
         dates: '20260824T100000/20260824T140000',
@@ -48,7 +48,7 @@ export default function Events() {
       venue: 'Metro Convention',
       venueAddress: 'Vijayanagaram',
       venueLink: 'https://maps.google.com/?q=Metro+Convention+Vizianagaram',
-      mapEmbedUrl: 'https://maps.google.com/maps?q=Metro%20Convention%20Vizianagaram&t=&z=14&ie=UTF8&iwloc=&output=embed',
+      image: '/images/marriage.png',
       calendarEvent: {
         text: 'Ravi Teja & Sravya - Wedding Ceremony',
         dates: '20260826T090000/20260826T150000',
@@ -77,45 +77,46 @@ export default function Events() {
         {events.map((event, idx) => (
           <ScrollReveal key={event.id} delay={idx + 1}>
             <div className="event-card">
-              <div className="event-icon">{event.icon}</div>
-              <h3 className={`event-name ${event.titleClass}`}>{event.name}</h3>
-              <p className="event-date">{event.date}</p>
-              <p className="event-time">{event.time}</p>
-              
-              <div className="event-venue-container">
-                <MapPin size={16} className="venue-pin-icon" />
-                <div className="venue-details">
-                  <a
-                    href={event.venueLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="venue-link"
-                  >
-                    {event.venue}
-                  </a>
-                  <span className="venue-subtext">{event.venueAddress}</span>
-                </div>
-              </div>
-
-              <div className="event-map">
-                <iframe
-                  src={event.mapEmbedUrl}
-                  title={`${event.name} Map`}
-                  allowFullScreen
+              {/* Invitation Image */}
+              <div className="event-invitation-image">
+                <img
+                  src={event.image}
+                  alt={`${event.name} Ceremony Invitation`}
                   loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
                 />
               </div>
 
-              <a
-                href={getGoogleCalendarUrl(event.calendarEvent)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-calendar"
-              >
-                <Calendar size={14} />
-                Add to Google Calendar
-              </a>
+              <div className="event-card-details">
+                <div className="event-icon">{event.icon}</div>
+                <h3 className={`event-name ${event.titleClass}`}>{event.name}</h3>
+                <p className="event-date">{event.date}</p>
+                <p className="event-time">{event.time}</p>
+                
+                <div className="event-venue-container">
+                  <MapPin size={16} className="venue-pin-icon" />
+                  <div className="venue-details">
+                    <a
+                      href={event.venueLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="venue-link"
+                    >
+                      {event.venue}
+                    </a>
+                    <span className="venue-subtext">{event.venueAddress}</span>
+                  </div>
+                </div>
+
+                <a
+                  href={getGoogleCalendarUrl(event.calendarEvent)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-calendar"
+                >
+                  <Calendar size={14} />
+                  Add to Google Calendar
+                </a>
+              </div>
             </div>
           </ScrollReveal>
         ))}

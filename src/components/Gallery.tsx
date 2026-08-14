@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import ScrollReveal from './ScrollReveal';
 
 export default function Gallery() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
 
   const images = [
     {
@@ -32,18 +34,58 @@ export default function Gallery() {
     },
   ];
 
-  const handlePrev = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (activeIndex !== null) {
-      setActiveIndex((prev) => (prev === 0 ? images.length - 1 : prev! - 1));
-    }
+  const goNext = useCallback(() => {
+    setActiveIndex((prev) =>
+      prev === null ? null : prev === images.length - 1 ? 0 : prev + 1
+    );
+  }, [images.length]);
+
+  const goPrev = useCallback(() => {
+    setActiveIndex((prev) =>
+      prev === null ? null : prev === 0 ? images.length - 1 : prev - 1
+    );
+  }, [images.length]);
+
+  const closeLightbox = useCallback(() => setActiveIndex(null), []);
+
+  // Keyboard navigation
+  useEffect(() => {
+    if (activeIndex === null) return;
+
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowRight') goNext();
+      if (e.key === 'ArrowLeft') goPrev();
+    };
+
+    document.addEventListener('keydown', handleKey);
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.removeEventListener('keydown', handleKey);
+      document.body.style.overflow = '';
+    };
+  }, [activeIndex, goNext, goPrev, closeLightbox]);
+
+  // Touch swipe handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
   };
 
-  const handleNext = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (activeIndex !== null) {
-      setActiveIndex((prev) => (prev === images.length - 1 ? 0 : prev! + 1));
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartX.current === null || touchEndX.current === null) return;
+    const diff = touchStartX.current - touchEndX.current;
+    const threshold = 50;
+    if (Math.abs(diff) > threshold) {
+      if (diff > 0) goNext();
+      else goPrev();
     }
+    touchStartX.current = null;
+    touchEndX.current = null;
   };
 
   return (
@@ -61,66 +103,82 @@ export default function Gallery() {
             <div
               className="gallery-item"
               onClick={() => setActiveIndex(img.id)}
-              style={{
-                cursor: 'pointer',
-                borderRadius: '12px',
-                border: '1.5px solid var(--border-gold)',
-                boxShadow: 'var(--shadow-card)',
-                position: 'relative',
-                overflow: 'hidden',
-                aspectRatio: '4/3',
-              }}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && setActiveIndex(img.id)}
+              aria-label={`View ${img.title}`}
             >
               <img
                 src={img.src}
                 alt={img.title}
                 loading="lazy"
-                className="gallery-img-hover"
-                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.5s ease' }}
+                className="gallery-item-img"
               />
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  background: 'linear-gradient(to top, rgba(26,3,6,0.85) 0%, rgba(26,3,6,0.2) 60%, transparent 100%)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'flex-end',
-                  padding: '16px',
-                  color: 'white',
-                }}
-              >
-                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1rem', fontWeight: 600, color: 'var(--gold-light)', marginBottom: '2px' }}>
-                  {img.title}
-                </h3>
-                <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.65rem', color: 'rgba(255,255,255,0.7)' }}>
-                  Click to Expand
-                </p>
+              <div className="gallery-item-info">
+                <h3 className="gallery-item-title">{img.title}</h3>
+                <span className="gallery-item-cta">Tap to view</span>
               </div>
-              <div className="gallery-item-overlay"><span>View Image</span></div>
+              <div className="gallery-item-hover-overlay">
+                <span className="gallery-view-label">View Image</span>
+              </div>
             </div>
           </ScrollReveal>
         ))}
       </div>
 
+      {/* Lightbox Overlay */}
       {activeIndex !== null && (
-        <div className="lightbox" onClick={() => setActiveIndex(null)}>
-          <div className="lightbox-close" onClick={() => setActiveIndex(null)}><X size={20} /></div>
-          <button className="lightbox-nav-btn left" onClick={handlePrev} aria-label="Previous"><ChevronLeft size={24} /></button>
-          <div
-            className="lightbox-card"
-            style={{ width: '90vw', maxWidth: '650px', borderRadius: '16px', border: '2px solid var(--gold)', overflow: 'hidden', background: '#1A0306', boxShadow: '0 24px 48px rgba(0,0,0,0.8)' }}
-            onClick={(e) => e.stopPropagation()}
+        <div
+          className="lightbox-overlay"
+          onClick={closeLightbox}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          {/* Close button */}
+          <button
+            className="lightbox-close-btn"
+            onClick={closeLightbox}
+            aria-label="Close lightbox"
           >
-            <div style={{ aspectRatio: '4/3', width: '100%' }}>
-              <img src={images[activeIndex].src} alt={images[activeIndex].title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            <X size={24} />
+          </button>
+
+          {/* Prev arrow */}
+          <button
+            className="lightbox-arrow lightbox-arrow-left"
+            onClick={(e) => { e.stopPropagation(); goPrev(); }}
+            aria-label="Previous image"
+          >
+            <ChevronLeft size={28} />
+          </button>
+
+          {/* Image card */}
+          <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
+            <div className="lightbox-image-wrap">
+              <img
+                src={images[activeIndex].src}
+                alt={images[activeIndex].title}
+                className="lightbox-image"
+              />
             </div>
-            <div style={{ padding: '20px 24px', borderTop: '1px solid var(--border-gold)', background: '#1A0306', color: 'white', textAlign: 'center' }}>
-              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.25rem', color: 'var(--gold-light)', marginBottom: '8px' }}>{images[activeIndex].title}</h3>
-              <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.85rem', lineHeight: '1.5', color: 'rgba(255,255,255,0.8)', maxWidth: '480px', margin: '0 auto' }}>{images[activeIndex].description}</p>
+            <div className="lightbox-caption">
+              <h3 className="lightbox-title">{images[activeIndex].title}</h3>
+              <p className="lightbox-desc">{images[activeIndex].description}</p>
+              <span className="lightbox-counter">
+                {activeIndex + 1} / {images.length}
+              </span>
             </div>
           </div>
-          <button className="lightbox-nav-btn right" onClick={handleNext} aria-label="Next"><ChevronRight size={24} /></button>
+
+          {/* Next arrow */}
+          <button
+            className="lightbox-arrow lightbox-arrow-right"
+            onClick={(e) => { e.stopPropagation(); goNext(); }}
+            aria-label="Next image"
+          >
+            <ChevronRight size={28} />
+          </button>
         </div>
       )}
     </section>
