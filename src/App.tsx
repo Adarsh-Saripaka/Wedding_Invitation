@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Loader from './components/Loader';
 import Navbar from './components/Navbar';
-import WelcomeSection from './components/WelcomeSection';
+import Hero from './components/Hero';
 import PersonalNote from './components/PersonalNote';
 import ConfirmPresence from './components/ConfirmPresence';
 import Events from './components/Events';
@@ -43,7 +43,7 @@ function App() {
 
   return (
     <>
-      <Loader onComplete={() => setIsLoading(false)} />
+      {isLoading && <Loader onComplete={() => setIsLoading(false)} />}
       
       {!isLoading && (
         <div className={`app-root ${isEnvelopeOpened ? 'envelope-is-opened' : 'envelope-is-locked'} ${isRevealFinished ? 'reveal-is-finished' : ''}`}>
@@ -56,64 +56,68 @@ function App() {
             {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
           </button>
 
-          {/* Envelope Section (Replaces Hero section and remains at top) */}
-          <Envelope
-            isOpen={isEnvelopeOpened}
-            onOpen={() => setIsEnvelopeOpened(true)}
-            isMuted={isMuted}
-            onToggleMute={handleToggleMute}
-          />
+          {/* Envelope Screen (Only during intro before reveal) */}
+          {!isEnvelopeOpened && !isRevealFinished && (
+            <Envelope
+              isOpen={isEnvelopeOpened}
+              onOpen={() => setIsEnvelopeOpened(true)}
+              isMuted={isMuted}
+              onToggleMute={handleToggleMute}
+            />
+          )}
 
           {/* Reveal Screen (Transitions from Envelope to Main Content) */}
           {isEnvelopeOpened && !isRevealFinished && (
             <NewRevealScreen onComplete={() => setIsRevealFinished(true)} />
           )}
 
-          {/* The main scrollable content revealed after opening */}
-          <div className="main-content-flow">
-            <Navbar />
-            
-            <WelcomeSection />
+          {/* The main scrollable content revealed after reveal screen finishes */}
+          {isRevealFinished && (
+            <div className="main-content-flow">
+              <Navbar />
+              
+              <Hero />
 
-            <div className="section-full">
-              <PersonalNote />
+              <div className="section-full">
+                <PersonalNote />
+              </div>
+
+              <div className="botanical-divider">
+                <span className="stem" />
+                <span className="leaf">✿</span>
+                <span className="stem" />
+              </div>
+
+              <div className="section-full">
+                <ConfirmPresence />
+              </div>
+
+              <Events />
+
+              <div className="botanical-divider">
+                <span className="stem" />
+                <span className="leaf">✿</span>
+                <span className="stem" />
+              </div>
+
+              <Gallery />
+
+              <div className="botanical-divider">
+                <span className="stem" />
+                <span className="leaf">✿</span>
+                <span className="stem" />
+              </div>
+
+              <ClosingNote />
+
+              <footer className="footer">
+                <h4 className="footer-names">Ravi Teja & Sravya</h4>
+                <p className="footer-text">
+                  © {new Date().getFullYear()} • Made with love for our special day
+                </p>
+              </footer>
             </div>
-
-            <div className="botanical-divider">
-              <span className="stem" />
-              <span className="leaf">✿</span>
-              <span className="stem" />
-            </div>
-
-            <div className="section-full">
-              <ConfirmPresence />
-            </div>
-
-            <Events />
-
-            <div className="botanical-divider">
-              <span className="stem" />
-              <span className="leaf">✿</span>
-              <span className="stem" />
-            </div>
-
-            <Gallery />
-
-            <div className="botanical-divider">
-              <span className="stem" />
-              <span className="leaf">✿</span>
-              <span className="stem" />
-            </div>
-
-            <ClosingNote />
-
-            <footer className="footer">
-              <h4 className="footer-names">Ravi Teja & Sravya</h4>
-              <p className="footer-text">
-                © {new Date().getFullYear()} • Made with love for our special day
-              </p>
-            </footer>
-          </div>
+          )}
         </div>
       )}
     </>
@@ -121,3 +125,4 @@ function App() {
 }
 
 export default App;
+

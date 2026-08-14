@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ambientMusic } from '../utils/audio';
-import { useCountdown } from '../hooks/useCountdown';
 
 interface EnvelopeProps {
   isOpen: boolean;
@@ -26,16 +25,12 @@ interface Petal {
   rotation: number;
 }
 
-const WEDDING_DATE = new Date('2026-08-26T09:00:00+05:30');
-
 export default function Envelope({ isOpen, onOpen, isMuted }: EnvelopeProps) {
   const [isOpening, setIsOpening] = useState(false);
   const [isCracked, setIsCracked] = useState(false);
   const [sparkles, setSparkles] = useState<Sparkle[]>([]);
   const [petals, setPetals] = useState<Petal[]>([]);
   const [showHint, setShowHint] = useState(false);
-  
-  const { days, hours, minutes, seconds } = useCountdown(WEDDING_DATE);
 
   useEffect(() => {
     // Generate sparkle coordinates for ambient golden dust
@@ -49,7 +44,6 @@ export default function Envelope({ isOpen, onOpen, isMuted }: EnvelopeProps) {
     setSparkles(items);
 
     // Generate floating rose petals
-    // Reduced count for mobile performance will be handled via CSS media queries hiding nth-child
     const petalItems = Array.from({ length: 18 }).map((_, idx) => ({
       id: idx,
       left: Math.random() * 100,
@@ -73,14 +67,14 @@ export default function Envelope({ isOpen, onOpen, isMuted }: EnvelopeProps) {
     ambientMusic.start();
     ambientMusic.setMute(isMuted);
 
-    // Delay the actual flap opening to let the seal crack animation play
+    // Delay the flap opening to let the seal crack animation play
     setTimeout(() => {
       setIsOpening(true);
       
-      // Trigger open state in parent component after flap opens and card pops out
+      // Trigger open state in parent component as flap opens and light converges inward
       setTimeout(() => {
         onOpen();
-      }, 1800);
+      }, 1400);
     }, 400); // 400ms for crack animation
   }, [isOpening, isCracked, isOpen, isMuted, onOpen]);
 
@@ -132,7 +126,7 @@ export default function Envelope({ isOpen, onOpen, isMuted }: EnvelopeProps) {
         <p className="envelope-tagline">A celebration of love awaits</p>
       </div>
 
-      {/* Outer Envelope Wrapper */}
+      {/* Outer Envelope Wrapper (Solid & 100% Opaque) */}
       <div className={`envelope-container ${activeOpenState ? 'open' : ''}`}>
         {/* Envelope shimmer overlay */}
         <div className="envelope-shimmer" />
@@ -146,32 +140,10 @@ export default function Envelope({ isOpen, onOpen, isMuted }: EnvelopeProps) {
           <span className="envelope-corner-flourish bottom-right">❧</span>
         </div>
 
-        {/* Envelope Inside Card (Warm invitation card) */}
-        <div className="envelope-card-preview">
-          <div className="envelope-card-inner-bg">
-            <img src="/images/invitation_hero.jpg" alt="Ravi Teja & Sravya Wedding Invitation" />
-            <div className="envelope-card-gradient-overlay" />
-          </div>
-
-          <div className="envelope-card-countdown-overlay">
-            {[
-              { value: days, label: 'Days' },
-              { value: hours, label: 'Hours' },
-              { value: minutes, label: 'Minutes' },
-              { value: seconds, label: 'Seconds' },
-            ].map((item) => (
-              <div className="countdown-item-envelope" key={item.label}>
-                <span className="countdown-number-envelope">{item.value}</span>
-                <span className="countdown-label-envelope">{item.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* Envelope Flap (Top Triangle with gold vine stamp) */}
         <div className="envelope-flap">
           <svg className="flap-svg" viewBox="0 0 100 50" preserveAspectRatio="none">
-            {/* Dark velvet top fold */}
+            {/* Solid velvet top fold */}
             <defs>
               <linearGradient id="flapGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#6A1A24" />
@@ -180,7 +152,7 @@ export default function Envelope({ isOpen, onOpen, isMuted }: EnvelopeProps) {
               </linearGradient>
             </defs>
             <polygon points="0,0 50,48 100,0" fill="url(#flapGrad)" />
-            {/* Subtle Gold Foil Flap Border */}
+            {/* Gold Foil Flap Border */}
             <polyline points="2,0 50,46 98,0" stroke="#C9A24B" strokeWidth="0.8" fill="none" strokeOpacity="0.85" />
             {/* Inner decorative line */}
             <polyline points="8,0 50,38 92,0" stroke="#D9C48E" strokeWidth="0.3" fill="none" strokeOpacity="0.4" />
@@ -189,7 +161,7 @@ export default function Envelope({ isOpen, onOpen, isMuted }: EnvelopeProps) {
           <div className="flap-seal-decoration">❦</div>
         </div>
 
-        {/* Envelope Front Flaps (Left, Right and Bottom pocket overlay) */}
+        {/* Envelope Front Flaps (Left, Right and Bottom pocket overlay - 100% solid opacity) */}
         <div className="envelope-front">
           <svg className="front-svg" viewBox="0 0 100 60" preserveAspectRatio="none">
             <defs>
@@ -202,16 +174,16 @@ export default function Envelope({ isOpen, onOpen, isMuted }: EnvelopeProps) {
                 <stop offset="100%" stopColor="#420B11" />
               </linearGradient>
             </defs>
-            {/* Left fold */}
-            <polygon points="0,0 50,30 0,60" fill="url(#leftFold)" opacity="0.95" />
+            {/* Left fold - 100% solid */}
+            <polygon points="0,0 50,30 0,60" fill="url(#leftFold)" opacity="1" />
             <polyline points="0,1 48,30 0,59" stroke="#C9A24B" strokeWidth="0.5" fill="none" strokeOpacity="0.4" />
 
-            {/* Right fold */}
-            <polygon points="100,0 50,30 100,60" fill="url(#rightFold)" opacity="0.95" />
+            {/* Right fold - 100% solid */}
+            <polygon points="100,0 50,30 100,60" fill="url(#rightFold)" opacity="1" />
             <polyline points="100,1 52,30 100,59" stroke="#C9A24B" strokeWidth="0.5" fill="none" strokeOpacity="0.4" />
 
-            {/* Bottom fold */}
-            <polygon points="0,60 50,28 100,60" fill="#36080D" />
+            {/* Bottom fold - 100% solid */}
+            <polygon points="0,60 50,28 100,60" fill="#36080D" opacity="1" />
             <polyline points="1,59 50,29 99,59" stroke="#C9A24B" strokeWidth="0.6" fill="none" strokeOpacity="0.5" />
           </svg>
         </div>
@@ -219,7 +191,7 @@ export default function Envelope({ isOpen, onOpen, isMuted }: EnvelopeProps) {
         {/* Wax Seal Toggle / Action Button */}
         <div className={`wax-seal-wrapper ${isCracked ? 'cracked' : ''} ${isOpening ? 'fade-out' : ''}`}>
           <div className="wax-seal-pulse" />
-          <button className="wax-seal" onClick={handleOpen}>
+          <button className="wax-seal" onClick={handleOpen} aria-label="Open wedding invitation envelope">
             <div className="wax-inner-seal">
               <span className="wax-symbol">❦</span>
             </div>
@@ -235,9 +207,9 @@ export default function Envelope({ isOpen, onOpen, isMuted }: EnvelopeProps) {
           <p className="seal-invite-text">YOU ARE INVITED ♡</p>
         </div>
 
-        {/* Transition Light Burst */}
-        {isOpening && <div className="gold-burst-effect" />}
-        {isOpening && <div className="gold-rays-effect" />}
+        {/* Transition Inward Converging Light Effect */}
+        {isOpening && <div className="gold-inward-converge" />}
+        {isOpening && <div className="gold-rays-converge" />}
       </div>
 
       {/* Bottom decorative text */}
@@ -247,3 +219,4 @@ export default function Envelope({ isOpen, onOpen, isMuted }: EnvelopeProps) {
     </div>
   );
 }
+
