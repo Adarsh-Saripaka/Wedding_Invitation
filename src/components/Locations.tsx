@@ -14,11 +14,11 @@ const venues = [
   {
     id: 'venue-haldi',
     eventName: 'Haldi',
-    venueName: 'Sunrise Iconic Resort',
-    address: 'Bheemunipatnam, Visakhapatnam',
+    venueName: 'Lucky Mansion Resort and Restaurant',
+    address: 'Adivivaram - Boddunaidupalem Rd, Sowbhagya Rayapuram, Andhra Pradesh 531173',
     directionsLink: 'https://maps.app.goo.gl/yS5V5Loft7ehBAiMA?g_st=iw',
     mapEmbedUrl:
-      'https://maps.app.goo.gl/yS5V5Loft7ehBAiMA?g_st=iw',
+      'https://maps.google.com/maps?q=LUCKY%20MANSION%20RESORT%20AND%20RESTAURANT%20Adivivaram&t=&z=14&ie=UTF8&iwloc=&output=embed',
   },
   {
     id: 'venue-marriage',
