@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import Loader from './components/Loader';
-import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import PersonalNote from './components/PersonalNote';
 import ConfirmPresence from './components/ConfirmPresence';
@@ -75,7 +74,6 @@ function App() {
           {/* The main scrollable content revealed after reveal screen finishes */}
           {isRevealFinished && (
             <div className="main-content-flow">
-              <Navbar />
               
               <Hero />
 
